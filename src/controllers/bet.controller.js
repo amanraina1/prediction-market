@@ -1,26 +1,13 @@
-async function getAllBets(req, res) {
+import prisma from "../db.js";
 
-    try {
-        const bets = await prisma.bets.findMany({
-            
-        });
-
-        return res.status(201).json({success: true, bets});
-
-    } catch (e) {
-
-        return res.status(500).json({success: false, message: e.message});
-    }
-}
-
-async function getMyBets(req, res) {
+async function getBets(req, res) {
 
     const { userId } = req;
 
     try {
-        const bets = await prisma.bets.findMany({
+        const bets = await prisma.bet.findMany({
             where: {
-                creator_id: userId
+                user_id: userId
             }
         });
 
@@ -32,10 +19,29 @@ async function getMyBets(req, res) {
     }
 }
 
-async function makeBet(req, res) {}
+async function makeBet(req, res) {
+
+    const { userId } = req;
+    const { marketId, amount } = req.body;
+
+    try {
+        const bet = await prisma.bet.create({
+            data: {
+                user_id: userId,
+                market_id: marketId,
+                bet_amount: amount
+            }
+        })
+
+        return res.status(201).json({success: true, betId: bet.id});
+
+    } catch (e) {
+
+        return res.status(500).json({success: false, message: e.message});
+    }
+}
 
 export {
     makeBet,
-    getMyBets,
-    getAllBets
+    getBets
 }

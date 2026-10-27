@@ -1,6 +1,6 @@
 import express from "express";
 import { config } from "dotenv";
-import { veriyAuth } from "./middleware/auth.middleware.js";
+import { verifyAdmin, veriyAuth } from "./middleware/auth.middleware.js";
 import authRoutes from "./routes/auth.route.js";
 import marketRoutes from "./routes/market.route.js";
 import betRoutes from "./routes/bet.route.js";

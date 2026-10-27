@@ -13,7 +13,17 @@ async function createMarket(req, res) {
     const { userId } = req;
 
     try {
-        
+        // before creating the market, first check if  user's wallet has atleast the amount required for initial wager
+        const user = await prisma.user.find({
+            where: {
+                id: userId
+            }
+        });
+
+        if(user.balance < initialWager) {
+            return res.status(400).json({message: "Insufficient balance"})
+        }
+
         // when the market is created, add the initial wager as a transaction in the wallet
         const [finalResult] = await prisma.$transaction([
             prisma.market.create({
@@ -25,14 +35,25 @@ async function createMarket(req, res) {
                 }
             }),
 
+            prisma.user.update({
+                where: {
+                    id: userId
+                },
+                data: {
+                    balance: {
+                        decrement: initialWager
+                    }
+                }
+            }),
+
             prisma.walletEvent.create({
                 data: {
                     user_id: userId,
                     transaction_type: "create_market",
                     transaction_amount: initialWager
                 }
-            })
-        ])
+            }),
+        ]);
 
         return res.status(201).json({success: true, message: "Market created successfully", marketId: finalResult.id});
 

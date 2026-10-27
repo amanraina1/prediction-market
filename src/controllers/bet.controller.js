@@ -35,16 +35,28 @@ async function makeBet(req, res) {
     const { marketId, amount } = result.data;
 
     try {
-        // before making a bet to this market, first check if this market exists or not
+        // before making a bet to this market, first check if this market exists or not and if its pending
         const market = await prisma.market.findFirst({
             where: {
-                id: marketId
+                id: marketId,
+                resolution: "pending"
             }
         });
 
         // if doesn't exist, then early return
         if(!market) {
             return res.status(400).json({success: false, message: "No market exists with this id"});
+        }
+
+        // now check if user has this much balance to place the bet or not
+        const user = await prisma.user.findFirst({
+            where: {
+                id: userId
+            }
+        });
+
+        if(user.balance < amount) {
+            return res.status(400).json({success: false, message: "Insufficient funds"});
         }
 
         // now before making any new bet, first check, that the already added amount + this amount should not exceed the initialWager
@@ -59,13 +71,14 @@ async function makeBet(req, res) {
             }
         });
 
-        const totalAmount = totalBets + amount;
+        const totalAmount = totalBets._sum.bet_amount + amount;
 
         if(totalAmount > market.initialWager) {
             return res.status(400).json({message: "Cannot place bet, the amount exceeds the total bet amount"});
         }
 
         const [bet] = prisma.$transaction([
+            // create a bet
             prisma.bet.create({
                 data: {
                     user_id: userId,
@@ -74,6 +87,19 @@ async function makeBet(req, res) {
                 }
             }),
 
+            // deduct the amount from user's balance
+            await prisma.user.update({
+                where: {
+                    id: userId
+                },
+                data: {
+                    balance: {
+                        decrement: amount
+                    }
+                }
+            }),
+
+            // add a transaction
             prisma.walletEvent.create({
                 data: {
                     user_id: userId,

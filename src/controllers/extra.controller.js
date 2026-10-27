@@ -1,6 +1,6 @@
 import prisma from "../db.js";
 
-async function onRampController(req, res) {
+async function handleOnRamp(req, res) {
     const { userId } = req;
 
     const { amount } = req.body;
@@ -47,7 +47,7 @@ async function onRampController(req, res) {
     }
 }
 
-async function transactionController(req, res) {
+async function handleTransactions(req, res) {
 
     const { userId } = req;
 
@@ -66,7 +66,7 @@ async function transactionController(req, res) {
     }
 }
 
-async function profileController(req, res) {
+async function handleProfile(req, res) {
 
     const { userId } = req;
 
@@ -99,7 +99,7 @@ async function profileController(req, res) {
 }
 
 export {
-    onRampController,
-    transactionController,
-    profileController
+    handleOnRamp,
+    handleTransactions,
+    handleProfile
 }

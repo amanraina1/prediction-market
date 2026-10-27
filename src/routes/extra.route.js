@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { onRampController, transactionController, profileController } from "../controllers/extra.controller.js";
+import { handleOnRamp, handleTransactions, handleProfile } from "../controllers/extra.controller.js";
 
 const router = Router();
 
-router.post("/onramp", onRampController);
-router.get("/transactions", transactionController);
-router.get("/profile", profileController);
+router.post("/onramp", handleOnRamp);
+router.get("/transactions", handleTransactions);
+router.get("/profile", handleProfile);
 
 export default router;

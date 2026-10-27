@@ -1,4 +1,6 @@
 import prisma from "../db.js";
+import { createBetSchema } from "../validations/schemas/betSchema.js";
+import { validate } from "../validations/validator.js";
 
 async function getBets(req, res) {
 
@@ -22,9 +24,29 @@ async function getBets(req, res) {
 async function makeBet(req, res) {
 
     const { userId } = req;
-    const { marketId, amount } = req.body;
+
+    const result = validate(createBetSchema, req.body);
+    
+    if(!result.success) {
+        return res.status(400).json({success: false, errors: result.errors});
+    }
+    
+    const { marketId, amount } = result.data;
 
     try {
+
+        const market = await prisma.market.findFirst({
+            where: {
+                id: marketId
+            }
+        });
+
+        if(!market) {
+            return res.status(400).json({success: false, message: "No market exists with this id"});
+        }
+
+        // TODO:: if the amount in this req is greater than the initalWager, we need to handle the situation
+
         const bet = await prisma.bet.create({
             data: {
                 user_id: userId,

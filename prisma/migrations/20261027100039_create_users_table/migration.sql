@@ -3,7 +3,7 @@ CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "balance" TEXT NOT NULL,
+    "balance" TEXT DEFAULT '0',
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );

@@ -12,4 +12,26 @@ model User {
   username  String       @unique
   password  String
   balance   String?      @default("0")
+
+  markets    Market[]
+}
+
+model Market {
+  id              String       @id         @default(uuid())
+  title           String
+  initialWager    String?      @default("0")
+  creator_id      String
+  bet             Side
+  resolution      Resolution  @default(pending)
+
+  user            User        @relation(fields: [creator_id], references: [id], onDelete: Cascade)
+}
+
+enum Side {
+  yes
+  no
+}
+enum Resolution {
+  resolved
+  pending
 }

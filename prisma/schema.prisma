@@ -14,6 +14,7 @@ model User {
   balance   String?      @default("0")
 
   markets    Market[]
+  bets       Bet[]
 }
 
 model Market {
@@ -25,6 +26,7 @@ model Market {
   resolution      Resolution  @default(pending)
 
   user            User        @relation(fields: [creator_id], references: [id], onDelete: Cascade)
+  bets            Bet[]
 }
 
 enum Side {
@@ -34,4 +36,14 @@ enum Side {
 enum Resolution {
   resolved
   pending
+}
+
+model Bet {
+  id            String      @id                 @default(uuid())
+  user_id       String
+  market_id     String
+  bet_amount    String
+
+  user          User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  market        Market      @relation(fields: [market_id], references: [id], onDelete: Cascade)
 }

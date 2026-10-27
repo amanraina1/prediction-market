@@ -30,7 +30,7 @@ async function createMarket(req, res) {
     }
 }
 
-async function getMarkets(req, res) {
+async function getAllMarkets(req, res) {
 
     try {
         const markets = await prisma.market.findMany();
@@ -43,7 +43,27 @@ async function getMarkets(req, res) {
     }
 }
 
+async function getMyMarkets(req, res) {
+
+    const { userId } = req;
+
+    try {
+        const markets = await prisma.market.findMany({
+            where: {
+                creator_id: userId
+            }
+        });
+
+        return res.status(201).json({success: true, markets});
+
+    } catch (e) {
+
+        return res.status(500).json({success: false, message: e.message});
+    }
+}
+
 export {
     createMarket,
-    getMarkets
+    getAllMarkets,
+    getMyMarkets
 }

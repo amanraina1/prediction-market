@@ -8,19 +8,20 @@ datasource db {
 }
 
 model User {
-  id        String       @id          @default(uuid())
-  username  String       @unique
-  password  String
-  balance   String?      @default("0")
+  id               String       @id          @default(uuid())
+  username         String       @unique
+  password         String
+  balance          Int?      @default(0)
 
-  markets    Market[]
-  bets       Bet[]
+  markets          Market[]
+  bets             Bet[]
+  transactions     WalletEvent[]
 }
 
 model Market {
   id              String       @id         @default(uuid())
   title           String
-  initialWager    String?      @default("0")
+  initialWager    Int?        @default(0)
   creator_id      String
   bet             Side
   resolution      Resolution  @default(pending)
@@ -42,8 +43,18 @@ model Bet {
   id            String      @id                 @default(uuid())
   user_id       String
   market_id     String
-  bet_amount    String
+  bet_amount    Int
 
   user          User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
   market        Market      @relation(fields: [market_id], references: [id], onDelete: Cascade)
+}
+
+model WalletEvent {
+  id                  String      @id                 @default(uuid())
+  user_id             String
+  transaction_type    String
+  transaction_amount  Int
+  meta_data           Json?       @default("{}")
+
+  user                User        @relation(fields: [user_id], references: [id])
 }

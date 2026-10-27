@@ -1,9 +1,9 @@
 import prisma from "../db.js";
-import { marketSchema } from "../validations/schemas/marketSchema.js";
+import { createMarketSchema } from "../validations/schemas/marketSchema.js";
 import { validate } from "../validations/validator.js";
 
 async function createMarket(req, res) {
-    const result = validate(marketSchema, req.body);
+    const result = validate(createMarketSchema, req.body);
     
     if(!result.success) {
         return res.status(400).json({success: false, errors: result.errors});
@@ -13,14 +13,26 @@ async function createMarket(req, res) {
     const { userId } = req;
 
     try {
-        const finalResult = await prisma.market.create({
-            data: {
-                title,
-                initialWager,
-                creator_id: userId,
-                bet
-            }
-        });
+        
+        // when the market is created, add the initial wager as a transaction in the wallet
+        const [finalResult] = await prisma.$transaction([
+            prisma.market.create({
+                data: {
+                    title,
+                    initialWager,
+                    creator_id: userId,
+                    bet
+                }
+            }),
+
+            prisma.walletEvent.create({
+                data: {
+                    user_id: userId,
+                    transaction_type: "create_market",
+                    transaction_amount: initialWager
+                }
+            })
+        ])
 
         return res.status(201).json({success: true, message: "Market created successfully", marketId: finalResult.id});
 

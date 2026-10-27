@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 3001;
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/market", veriyAuth, marketRoutes);
 app.use("/api/v1/bet", veriyAuth, betRoutes);
+app.use("/api/v1/", veriyAuth, );
 
 app.listen(PORT, () => {
   console.log(`Server is listening at PORT: ${PORT}`)

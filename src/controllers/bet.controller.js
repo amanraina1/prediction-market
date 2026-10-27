@@ -45,7 +45,7 @@ async function makeBet(req, res) {
             return res.status(400).json({success: false, message: "No market exists with this id"});
         }
 
-        // TODO:: if the amount in this req is greater than the initalWager, we need to handle the situation
+        // TODO :: if the amount in this req is greater than the initalWager, we need to handle the situation
 
         const bet = await prisma.bet.create({
             data: {
